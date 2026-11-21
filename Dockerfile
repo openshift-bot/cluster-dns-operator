@@ -1,10 +1,10 @@
-FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.26-openshift-5.0 AS builder
+FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.26-openshift-5.1 AS builder
 WORKDIR /dns-operator
 COPY . .
 RUN make build
 
 # Test extension builder stage (added by ote-migration)
-FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.26-openshift-5.0 AS test-extension-builder
+FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.26-openshift-5.1 AS test-extension-builder
 WORKDIR /build/cluster-dns-operator
 COPY tests-extension/ tests-extension/
 RUN cd tests-extension && \
@@ -12,7 +12,7 @@ RUN cd tests-extension && \
     cd bin && \
     gzip -n cluster-dns-operator-tests-ext
 
-FROM registry.ci.openshift.org/ocp/5.0:base-rhel9
+FROM registry.ci.openshift.org/ocp/5.1:base-rhel9
 COPY --from=builder /dns-operator/dns-operator /usr/bin/
 # Copy test extension binary (raw gzip per OTE convention)
 COPY --from=test-extension-builder /build/cluster-dns-operator/tests-extension/bin/cluster-dns-operator-tests-ext.gz /usr/bin/
